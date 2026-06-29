@@ -1,0 +1,53 @@
+name: Deploy Express App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Login DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: sudipta07/call_summerizer:latest
+          platforms: linux/amd64,linux/arm64
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+
+            docker pull sudipta07/call_summerizer:latest
+
+            docker stop call_summerizer || true
+
+            docker rm call_summerizer || true
+
+            docker run -d \
+              --name call_summerizer \
+              -p 8080:8000 \
+              --restart unless-stopped \
+              sudipta07/call_summerizer:latest
