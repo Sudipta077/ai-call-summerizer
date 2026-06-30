@@ -16,7 +16,7 @@ app.use(express.json());
 
 app.get('/',(req,res)=>{
     console.log("Hiii")
-    res.send("SERVER IS RUNNING")
+    res.send("SERVER IS UPP RUNNING")
 })
 
 app.post('/webhook',async(req,res)=>{
