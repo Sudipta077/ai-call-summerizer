@@ -50,4 +50,6 @@ jobs:
               --name call_summerizer \
               -p 8080:8000 \
               --restart unless-stopped \
+              --env-file /home/ubuntu/.env \
               sudipta07/call_summerizer:latest
+
